@@ -82,7 +82,7 @@ class SubmodelElementList(SubmodelElement):
                 )
             )
         if self.semanticIdListElement:
-            _, created_sub_node = self.semanticIdListElement.to_rdf(graph, created_node)
+            _, created_sub_node = self.semanticIdListElement.to_rdf(created_graph, created_node)
             created_graph.add(
                 (
                     created_node,
@@ -106,16 +106,23 @@ class SubmodelElementList(SubmodelElement):
                 )
             )
         if self.value:
+            # Positional list (a list item itself): its own address is already
+            # the incoming prefix's digit segment, so items append only the index.
+            positional = prefix_uri.endswith(".") and prefix_uri[:-1].rsplit(".", 1)[-1].isdigit()
             for idx, element_value in enumerate(self.value):
+                if positional:
+                    item_prefix_uri = f"{prefix_uri}{idx}."
+                else:
+                    item_prefix_uri = f"{prefix_uri}{self.idShort}.{idx}."
                 _, created_sub_node = element_value.to_rdf(
-                    graph,
+                    created_graph,
                     created_node,
-                    prefix_uri=f"{prefix_uri}{self.idShort}%5B{idx}%5D.",
+                    prefix_uri=item_prefix_uri,
                     base_uri=base_uri,
                     id_strategy=id_strategy,
                 )
-                graph.add((created_sub_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
-                graph.add((created_node, AASNameSpace.AAS["SubmodelElementList/value"], created_sub_node))
+                created_graph.add((created_sub_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
+                created_graph.add((created_node, AASNameSpace.AAS["SubmodelElementList/value"], created_sub_node))
 
         return created_graph, created_node
 

@@ -49,11 +49,15 @@ class SubmodelElement(Referable, HasSemantics, Qualifiable, HasDataSpecification
         if graph == None:
             graph = rdflib.Graph()
             graph.bind("aas", AASNameSpace.AAS)
-        if self.idShort:
+        if prefix_uri.endswith(".") and prefix_uri[:-1].rsplit(".", 1)[-1].isdigit():
+            # SubmodelElementList position: the parent already addressed this
+            # element by index ({prefix}{idShort}.{index}); a payload idShort
+            # stays a literal triple and must not enter the IRI.
+            node = rdflib.URIRef(f"{base_uri}{prefix_uri[:-1]}")
+        elif self.idShort:
             node = rdflib.URIRef(f"{base_uri}{prefix_uri}{self.idShort}")
         else:
-            # This only happens when we are in SML
-            node = rdflib.URIRef(f"{base_uri}{prefix_uri}{self.idShort}")
+            raise ValueError("idShort is required outside a SubmodelElementList")
 
         # Referable
         Referable.append_as_rdf(self, graph, node)

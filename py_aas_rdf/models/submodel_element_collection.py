@@ -55,21 +55,22 @@ class SubmodelElementCollection(SubmodelElement):
         created_graph.add((created_node, RDF.type, AASNameSpace.AAS["SubmodelElementCollection"]))
         if self.value:
             for idx, submodel_element in enumerate(self.value):
-                # headache
-                if self.idShort:
-                    child_prefix_uri = f"{prefix_uri}{self.idShort}."
-                else:
-                    # idShort is optional when we are in SML
+                # Positional collection (a list item): its own address is already
+                # the incoming prefix's digit segment, so children extend it as-is.
+                positional = prefix_uri.endswith(".") and prefix_uri[:-1].rsplit(".", 1)[-1].isdigit()
+                if positional:
                     child_prefix_uri = f"{prefix_uri}"
+                else:
+                    child_prefix_uri = f"{prefix_uri}{self.idShort}."
                 _, created_sub_node = submodel_element.to_rdf(
-                    graph,
+                    created_graph,
                     created_node,
                     prefix_uri=child_prefix_uri,
                     base_uri=base_uri,
                     id_strategy=id_strategy,
                 )
-                graph.add((created_sub_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
-                graph.add((created_node, AASNameSpace.AAS["SubmodelElementCollection/value"], created_sub_node))
+                created_graph.add((created_sub_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
+                created_graph.add((created_node, AASNameSpace.AAS["SubmodelElementCollection/value"], created_sub_node))
         return created_graph, created_node
 
     @staticmethod

@@ -1,8 +1,12 @@
 #!/usr/bin/env python
 
 """Tests for `py_aas_rdf` package."""
+import rdflib
+
 from py_aas_rdf.models.data_specification_iec_61360 import ValueList, ValueReferencePair
 from py_aas_rdf.models.key import Key
+
+AAS = "https://admin-shell.io/aas/3/1/"
 
 
 def test_key_to_rdf():
@@ -50,3 +54,57 @@ def test_value_list_to_rdf():
     graph, created_node = payload.to_rdf()
     re_created = ValueList.from_rdf(graph, created_node)
     assert payload == re_created
+
+
+def _list_fixture():
+    from py_aas_rdf.models import submodel_element_list, submodel_element_collection
+    from py_aas_rdf.models.submodel_element_choice import SubmodelElementChoice
+
+    submodel_element_list.SubmodelElementChoice = SubmodelElementChoice
+    submodel_element_collection.SubmodelElementChoice = SubmodelElementChoice
+    submodel_element_list.SubmodelElementList.model_rebuild()
+    submodel_element_collection.SubmodelElementCollection.model_rebuild()
+    return submodel_element_list.SubmodelElementList, submodel_element_collection.SubmodelElementCollection
+
+
+def test_submodel_element_list_mints_digit_segment_irIs():
+    from py_aas_rdf.models.property import Property
+
+    SubmodelElementList, _ = _list_fixture()
+
+    def prop(id_short=None):
+        payload = {"modelType": "Property", "valueType": "xs:string", "value": "v"}
+        if id_short:
+            payload["idShort"] = id_short
+        return Property(**payload)
+
+    payload = SubmodelElementList(**{
+        "modelType": "SubmodelElementList",
+        "idShort": "Lst",
+        "typeValueListElement": "Property",
+        "value": [prop(), prop("Temp")],
+    })
+    graph, node = payload.to_rdf(prefix_uri="c3VibW9kZWw/submodel-elements/", base_uri="https://ex.org/")
+
+    items = sorted(str(o) for o in graph.objects(
+        node, rdflib.URIRef(AAS + "SubmodelElementList/value")))
+    assert items == [
+        "https://ex.org/c3VibW9kZWw/submodel-elements/Lst.0",
+        "https://ex.org/c3VibW9kZWw/submodel-elements/Lst.1",
+    ]
+
+
+def test_submodel_element_list_accepts_positional_root_prefix():
+    """A list as the root of an element event: index carries the address, graph=None."""
+    from py_aas_rdf.models.property import Property
+
+    SubmodelElementList, _ = _list_fixture()
+    graph, node = SubmodelElementList(**{
+        "modelType": "SubmodelElementList",
+        "idShort": "Lst",
+        "typeValueListElement": "Property",
+        "value": [{"modelType": "Property", "valueType": "xs:string", "value": "v"}],
+    }).to_rdf(prefix_uri="c3VibW9kZWw/submodel-elements/Lst.0.", base_uri="https://ex.org/")
+
+    assert str(node) == "https://ex.org/c3VibW9kZWw/submodel-elements/Lst.0"
+    assert len(list(graph)) > 0
