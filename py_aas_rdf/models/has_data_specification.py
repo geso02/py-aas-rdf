@@ -23,6 +23,7 @@ from enum import Enum
 from typing import Any, List, Optional, Union, Literal
 
 import rdflib
+from py_aas_rdf.models.ordering import objects_by_index
 from pydantic import BaseModel, Field, constr
 
 from py_aas_rdf.models.aas_namespace import AASNameSpace
@@ -47,7 +48,7 @@ class HasDataSpecification(BaseModel):
     @staticmethod
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode):
         embeddedDataSpecifications = []
-        for embedded_ref in graph.objects(
+        for embedded_ref in objects_by_index(graph, 
             subject=subject, predicate=AASNameSpace.AAS["HasDataSpecification/embeddedDataSpecifications"]
         ):
             embeddedDataSpecifications.append(EmbeddedDataSpecification.from_rdf(graph, embedded_ref))

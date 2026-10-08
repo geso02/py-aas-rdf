@@ -24,6 +24,7 @@ from typing import Any, List, Optional, Union, Literal
 
 import pydantic
 import rdflib
+from py_aas_rdf.models.ordering import objects_by_index
 from pydantic import BaseModel, Field, constr
 from rdflib import RDF
 
@@ -136,7 +137,7 @@ class Submodel(Identifiable, HasKind, HasSemantics, Qualifiable, HasDataSpecific
             kind_value = ModellingKind[kind_uriref[kind_uriref.rfind("/") + 1 :]]
         # Qualifiable
         qualifiers_value = []
-        for qualifier_uriref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Qualifiable/qualifiers"]):
+        for qualifier_uriref in objects_by_index(graph, subject=subject, predicate=AASNameSpace.AAS["Qualifiable/qualifiers"]):
             qualifier = Qualifier.from_rdf(graph, qualifier_uriref)
             qualifiers_value.append(qualifier)
         if len(qualifiers_value) == 0:
@@ -144,7 +145,7 @@ class Submodel(Identifiable, HasKind, HasSemantics, Qualifiable, HasDataSpecific
         # submodelElements
         submodel_elements_value = []
 
-        for submodel_element_uriref in graph.objects(
+        for submodel_element_uriref in objects_by_index(graph, 
             subject=subject, predicate=AASNameSpace.AAS["Submodel/submodelElements"]
         ):
             element = from_unknown_rdf(graph, submodel_element_uriref)

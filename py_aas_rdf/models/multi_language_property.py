@@ -23,6 +23,7 @@ from enum import Enum
 from typing import Any, List, Optional, Union, Literal
 
 import rdflib
+from py_aas_rdf.models.ordering import objects_by_index
 from pydantic import BaseModel, Field, constr
 from rdflib import RDF
 
@@ -70,7 +71,7 @@ class MultiLanguageProperty(DataElement):
     @staticmethod
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode) -> "MultiLanguageProperty":
         value_value = []
-        for lang_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["MultiLanguageProperty/value"]):
+        for lang_ref in objects_by_index(graph, subject=subject, predicate=AASNameSpace.AAS["MultiLanguageProperty/value"]):
             lang_value = None
             lang_uriref: rdflib.Literal = next(
                 graph.objects(subject=lang_ref, predicate=AASNameSpace.AAS["AbstractLangString/language"]), None

@@ -24,6 +24,7 @@ from typing import Any, List, Optional, Union, Literal
 from rdflib.namespace import FOAF, RDF, Namespace
 import pydantic
 import rdflib
+from py_aas_rdf.models.ordering import objects_by_index
 from pydantic import BaseModel, Field, constr
 from rdflib import Graph, XSD
 from rdflib.plugins.serializers.turtle import TurtleSerializer
@@ -170,7 +171,7 @@ class AssetInformation(BaseModel, RDFiable):
             default_thumbnail_value = Resource(path=path_value, contentType=content_type_value)
 
         specific_asset_ids_value = []
-        for specific_asset_uref in graph.objects(
+        for specific_asset_uref in objects_by_index(graph, 
             subject=subject, predicate=AASNameSpace.AAS["AssetInformation/specificAssetIds"]
         ):
             specific_asset_id = SpecificAssetId.from_rdf(graph, specific_asset_uref)

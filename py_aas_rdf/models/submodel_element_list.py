@@ -19,6 +19,7 @@
 #  CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 #  OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import rdflib
+from py_aas_rdf.models.ordering import objects_by_index
 from rdflib import RDF
 
 from py_aas_rdf.models.aas_namespace import AASNameSpace
@@ -168,7 +169,7 @@ class SubmodelElementList(SubmodelElement):
         value_value = []
         from py_aas_rdf.models.util import from_unknown_rdf
 
-        for submodel_element_uriref in graph.objects(
+        for submodel_element_uriref in objects_by_index(graph, 
             subject=subject, predicate=AASNameSpace.AAS["SubmodelElementList/value"]
         ):
             element = from_unknown_rdf(graph, submodel_element_uriref)

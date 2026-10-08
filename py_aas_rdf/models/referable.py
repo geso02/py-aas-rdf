@@ -24,6 +24,7 @@ from typing import Any, List, Optional, Union, Literal
 
 import pydantic
 import rdflib
+from py_aas_rdf.models.ordering import objects_by_index
 from pydantic import BaseModel, Field, constr
 
 from py_aas_rdf.models.aas_namespace import AASNameSpace
@@ -107,7 +108,7 @@ class Referable(HasExtensions):
             id_short_value = id_short_ref.value
 
         display_name_value = []
-        for display_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Referable/displayName"]):
+        for display_ref in objects_by_index(graph, subject=subject, predicate=AASNameSpace.AAS["Referable/displayName"]):
             lang_ref: rdflib.Literal = next(
                 graph.objects(subject=display_ref, predicate=AASNameSpace.AAS["AbstractLangString/language"]), None
             )
@@ -129,7 +130,7 @@ class Referable(HasExtensions):
             display_name_value = None
 
         description_value = []
-        for description_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Referable/description"]):
+        for description_ref in objects_by_index(graph, subject=subject, predicate=AASNameSpace.AAS["Referable/description"]):
             lang_ref: rdflib.Literal = next(
                 graph.objects(subject=description_ref, predicate=AASNameSpace.AAS["AbstractLangString/language"]), None
             )

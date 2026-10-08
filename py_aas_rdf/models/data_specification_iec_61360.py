@@ -23,6 +23,7 @@ from enum import Enum
 from typing import Any, List, Optional, Union, Literal
 
 import rdflib
+from py_aas_rdf.models.ordering import objects_by_index
 from pydantic import BaseModel, Field, constr
 
 from py_aas_rdf.models.aas_namespace import AASNameSpace
@@ -402,13 +403,13 @@ class DataSpecificationIec61360(BaseModel, RDFiable):
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode):
         # TODO: !
         pref_name_langs = []
-        for lang in graph.objects(
+        for lang in objects_by_index(graph, 
             subject=subject, predicate=AASNameSpace.AAS["DataSpecificationIec61360/preferredName"]
         ):
             pref_name_langs.append(LangStringPreferredNameTypeIec61360.from_rdf(graph, lang))
 
         short_name_langs = []
-        for lang in graph.objects(subject=subject, predicate=AASNameSpace.AAS["DataSpecificationIec61360/shortName"]):
+        for lang in objects_by_index(graph, subject=subject, predicate=AASNameSpace.AAS["DataSpecificationIec61360/shortName"]):
             short_name_langs.append(LangStringShortNameTypeIec61360.from_rdf(graph, lang))
         if len(short_name_langs) == 0:
             short_name_langs = None
@@ -460,7 +461,7 @@ class DataSpecificationIec61360(BaseModel, RDFiable):
             deta_type = DataTypeIec61360[deta_type_ref[deta_type_ref.rfind("/") + 1:]]
 
         defintion_langs = []
-        for lang in graph.objects(subject=subject, predicate=AASNameSpace.AAS["DataSpecificationIec61360/definition"]):
+        for lang in objects_by_index(graph, subject=subject, predicate=AASNameSpace.AAS["DataSpecificationIec61360/definition"]):
             defintion_langs.append(LangStringDefinitionTypeIec61360.from_rdf(graph, lang))
 
         if len(defintion_langs) == 0:

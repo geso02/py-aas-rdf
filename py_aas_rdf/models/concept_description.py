@@ -24,6 +24,7 @@ from typing import Any, List, Optional, Union, Literal
 from rdflib.namespace import FOAF, RDF, Namespace
 import pydantic
 import rdflib
+from py_aas_rdf.models.ordering import objects_by_index
 from pydantic import BaseModel, Field, constr
 from rdflib import Graph, XSD
 from rdflib.plugins.serializers.turtle import TurtleSerializer
@@ -83,7 +84,7 @@ class ConceptDescription(Identifiable, HasDataSpecification, RDFiable):
         hasDataSpecification = HasDataSpecification.from_rdf(graph, subject)
 
         isCaseOf = []
-        for is_case_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["ConceptDescription/isCaseOf"]):
+        for is_case_ref in objects_by_index(graph, subject=subject, predicate=AASNameSpace.AAS["ConceptDescription/isCaseOf"]):
             isCaseOf.append(Reference.from_rdf(graph, is_case_ref))
         if len(isCaseOf) == 0:
             isCaseOf = None

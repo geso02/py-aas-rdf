@@ -23,6 +23,7 @@ from enum import Enum
 from typing import Any, List, Optional, Union, Literal
 
 import rdflib
+from py_aas_rdf.models.ordering import objects_by_index
 from pydantic import BaseModel, Field, constr
 from rdflib import RDF
 
@@ -47,7 +48,7 @@ class HasExtensions(BaseModel):
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode):
         extensions = []
 
-        for extension_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["HasExtensions/extensions"]):
+        for extension_ref in objects_by_index(graph, subject=subject, predicate=AASNameSpace.AAS["HasExtensions/extensions"]):
             extensions.append(Extension.from_rdf(graph, extension_ref))
 
         if len(extensions) == 0:

@@ -19,6 +19,7 @@
 #  CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 #  OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import rdflib
+from py_aas_rdf.models.ordering import objects_by_index
 from rdflib import RDF
 
 from py_aas_rdf.models.aas_namespace import AASNameSpace
@@ -105,7 +106,7 @@ class Entity(SubmodelElement):
         statements_value = []
         from py_aas_rdf.models.util import from_unknown_rdf
 
-        for statement_uriref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Entity/statements"]):
+        for statement_uriref in objects_by_index(graph, subject=subject, predicate=AASNameSpace.AAS["Entity/statements"]):
             element = from_unknown_rdf(graph, statement_uriref)
             statements_value.append(element)
 
@@ -129,7 +130,7 @@ class Entity(SubmodelElement):
             global_asset_id_value = global_asset_id_ref.value
 
         specificAssetIds_value = []
-        for statement_uriref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Entity/specificAssetIds"]):
+        for statement_uriref in objects_by_index(graph, subject=subject, predicate=AASNameSpace.AAS["Entity/specificAssetIds"]):
             element = SpecificAssetId.from_rdf(graph, statement_uriref)
             specificAssetIds_value.append(element)
         if len(specificAssetIds_value) == 0:

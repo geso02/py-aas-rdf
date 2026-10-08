@@ -23,6 +23,7 @@ from enum import Enum
 from typing import Any, List, Optional, Union, Literal, Annotated
 
 import rdflib
+from py_aas_rdf.models.ordering import objects_by_index
 from pydantic import BaseModel, Field, constr
 from rdflib import RDF
 
@@ -83,7 +84,7 @@ class AnnotatedRelationshipElement(RelationshipElementAbstract):
         annotations_value = []
         from py_aas_rdf.models.util import from_unknown_rdf
 
-        for annotation_uriref in graph.objects(
+        for annotation_uriref in objects_by_index(graph, 
             subject=subject, predicate=AASNameSpace.AAS["AnnotatedRelationshipElement/annotations"]
         ):
             element = from_unknown_rdf(graph, annotation_uriref)

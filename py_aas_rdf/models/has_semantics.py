@@ -23,6 +23,7 @@ from enum import Enum
 from typing import Any, List, Optional, Union, Literal
 
 import rdflib
+from py_aas_rdf.models.ordering import objects_by_index
 from pydantic import BaseModel, Field, constr
 
 from py_aas_rdf.models.aas_namespace import AASNameSpace
@@ -57,7 +58,7 @@ class HasSemantics(BaseModel):
             semantic_id = Reference.from_rdf(graph, semantic_id_ref)
 
         supplementalSemanticIds = []
-        for supp_semantic_id in graph.objects(
+        for supp_semantic_id in objects_by_index(graph, 
             subject=subject, predicate=AASNameSpace.AAS["HasSemantics/supplementalSemanticIds"]
         ):
             supplementalSemanticIds.append(Reference.from_rdf(graph, supp_semantic_id))

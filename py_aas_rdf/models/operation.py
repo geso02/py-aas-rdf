@@ -19,6 +19,7 @@
 #  CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 #  OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import rdflib
+from py_aas_rdf.models.ordering import objects_by_index
 from rdflib import RDF
 
 from py_aas_rdf.models.aas_namespace import AASNameSpace
@@ -135,21 +136,21 @@ class Operation(SubmodelElement):
     @staticmethod
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode) -> "Operation":
         input_variables_value = []
-        for variable_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Operation/inputVariables"]):
+        for variable_ref in objects_by_index(graph, subject=subject, predicate=AASNameSpace.AAS["Operation/inputVariables"]):
             element = OperationVariable.from_rdf(graph, variable_ref)
             input_variables_value.append(element)
         if len(input_variables_value) == 0:
             input_variables_value = None
 
         output_variables_value = []
-        for variable_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Operation/outputVariables"]):
+        for variable_ref in objects_by_index(graph, subject=subject, predicate=AASNameSpace.AAS["Operation/outputVariables"]):
             element = OperationVariable.from_rdf(graph, variable_ref)
             output_variables_value.append(element)
         if len(output_variables_value) == 0:
             output_variables_value = None
 
         inoutput_variables_value = []
-        for variable_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Operation/inoutputVariables"]):
+        for variable_ref in objects_by_index(graph, subject=subject, predicate=AASNameSpace.AAS["Operation/inoutputVariables"]):
             element = OperationVariable.from_rdf(graph, variable_ref)
             inoutput_variables_value.append(element)
         if len(inoutput_variables_value) == 0:

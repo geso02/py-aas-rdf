@@ -245,3 +245,43 @@ def test_operation_as_list_item_addresses_variables_below_its_position():
 
     values = [str(o) for o in graph.objects(None, rdflib.URIRef(AAS + "OperationVariable/value"))]
     assert values == [SM + "Lst.0.InA"]
+
+
+def test_from_rdf_restores_list_order_from_aas_index_whatever_the_store_order():
+    import random
+
+    from py_aas_rdf.models.submodel import Submodel
+
+    def prop(idx):
+        return {"modelType": "Property", "valueType": "xs:int", "value": str(idx)}
+
+    def var(name):
+        return {"value": {"modelType": "Property", "idShort": name, "valueType": "xs:int"}}
+
+    submodel = Submodel(
+        id="http://t.sm",
+        idShort="Order",
+        submodelElements=[
+            {
+                "modelType": "SubmodelElementList",
+                "idShort": "Lst",
+                "typeValueListElement": "Property",
+                "valueTypeListElement": "xs:int",
+                "value": [prop(i) for i in (3, 1, 2, 5, 4)],
+            },
+            {
+                "modelType": "Operation",
+                "idShort": "Op",
+                "inputVariables": [var(n) for n in ("Zed", "Aye", "Mid")],
+            },
+        ],
+    )
+    graph, node = submodel.to_rdf(base_uri="https://example.org/", id_strategy="base64-url-encode")
+    expected = submodel.model_dump(exclude_none=True, mode="json")
+    for seed in range(10):
+        triples = list(graph)
+        random.Random(seed).shuffle(triples)
+        shuffled = rdflib.Graph()
+        for triple in triples:
+            shuffled.add(triple)
+        assert Submodel.from_rdf(shuffled, node).model_dump(exclude_none=True, mode="json") == expected
