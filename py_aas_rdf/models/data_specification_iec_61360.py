@@ -269,14 +269,11 @@ class ValueList(BaseModel, RDFiable):
 
     @staticmethod
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode):
-        value_list_content = graph.objects(subject=subject, predicate=AASNameSpace.AAS["ValueList/valueReferencePairs"])
-        keys = {}
-        for item in value_list_content:
-            created_value_reference_pair: ValueReferencePair = ValueReferencePair.from_rdf(graph, item)
-            index_ref: rdflib.Literal = next(graph.objects(subject=item, predicate=AASNameSpace.AAS["index"]), None)
-            keys[index_ref.value] = created_value_reference_pair
-
-        return ValueList.model_construct(valueReferencePairs=[keys[i] for i in range(len(keys.items()))])
+        pairs = [
+            ValueReferencePair.from_rdf(graph, item)
+            for item in objects_by_index(graph, subject, AASNameSpace.AAS["ValueList/valueReferencePairs"])
+        ]
+        return ValueList.model_construct(valueReferencePairs=pairs)
 
 
 class DataSpecificationIec61360(BaseModel, RDFiable):
@@ -403,7 +400,7 @@ class DataSpecificationIec61360(BaseModel, RDFiable):
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode):
         # TODO: !
         pref_name_langs = []
-        for lang in objects_by_index(graph, 
+        for lang in objects_by_index(graph,
             subject=subject, predicate=AASNameSpace.AAS["DataSpecificationIec61360/preferredName"]
         ):
             pref_name_langs.append(LangStringPreferredNameTypeIec61360.from_rdf(graph, lang))

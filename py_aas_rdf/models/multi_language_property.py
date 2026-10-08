@@ -53,8 +53,9 @@ class MultiLanguageProperty(DataElement):
         created_graph.add((created_node, RDF.type, AASNameSpace.AAS["MultiLanguageProperty"]))
         # TODO: Empty string should not be None
         if self.value:
-            for lang_value in self.value:
+            for idx, lang_value in enumerate(self.value):
                 lang_node = rdflib.BNode()
+                created_graph.add((lang_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
                 created_graph.add((lang_node, RDF.type, AASNameSpace.AAS["LangStringTextType"]))
                 created_graph.add(
                     (lang_node, AASNameSpace.AAS["AbstractLangString/language"], rdflib.Literal(lang_value.language))

@@ -171,7 +171,7 @@ class AssetInformation(BaseModel, RDFiable):
             default_thumbnail_value = Resource(path=path_value, contentType=content_type_value)
 
         specific_asset_ids_value = []
-        for specific_asset_uref in objects_by_index(graph, 
+        for specific_asset_uref in objects_by_index(graph,
             subject=subject, predicate=AASNameSpace.AAS["AssetInformation/specificAssetIds"]
         ):
             specific_asset_id = SpecificAssetId.from_rdf(graph, specific_asset_uref)

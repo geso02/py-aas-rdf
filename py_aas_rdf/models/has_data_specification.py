@@ -48,7 +48,7 @@ class HasDataSpecification(BaseModel):
     @staticmethod
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode):
         embeddedDataSpecifications = []
-        for embedded_ref in objects_by_index(graph, 
+        for embedded_ref in objects_by_index(graph,
             subject=subject, predicate=AASNameSpace.AAS["HasDataSpecification/embeddedDataSpecifications"]
         ):
             embeddedDataSpecifications.append(EmbeddedDataSpecification.from_rdf(graph, embedded_ref))

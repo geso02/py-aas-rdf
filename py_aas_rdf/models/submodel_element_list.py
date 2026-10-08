@@ -169,7 +169,7 @@ class SubmodelElementList(SubmodelElement):
         value_value = []
         from py_aas_rdf.models.util import from_unknown_rdf
 
-        for submodel_element_uriref in objects_by_index(graph, 
+        for submodel_element_uriref in objects_by_index(graph,
             subject=subject, predicate=AASNameSpace.AAS["SubmodelElementList/value"]
         ):
             element = from_unknown_rdf(graph, submodel_element_uriref)

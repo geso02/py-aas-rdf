@@ -116,7 +116,7 @@ class AssetAdministrationShell(Identifiable, HasDataSpecification, RDFiable):
             asset_information_value = AssetInformation.from_rdf(graph, asset_information_value_uriref)
 
         submodels_value = []
-        for submodel_uriref in objects_by_index(graph, 
+        for submodel_uriref in objects_by_index(graph,
             subject=subject, predicate=AASNameSpace.AAS["AssetAdministrationShell/submodels"]
         ):
             submodel_ref = Reference.from_rdf(graph, submodel_uriref)

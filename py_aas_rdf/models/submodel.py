@@ -145,7 +145,7 @@ class Submodel(Identifiable, HasKind, HasSemantics, Qualifiable, HasDataSpecific
         # submodelElements
         submodel_elements_value = []
 
-        for submodel_element_uriref in objects_by_index(graph, 
+        for submodel_element_uriref in objects_by_index(graph,
             subject=subject, predicate=AASNameSpace.AAS["Submodel/submodelElements"]
         ):
             element = from_unknown_rdf(graph, submodel_element_uriref)
