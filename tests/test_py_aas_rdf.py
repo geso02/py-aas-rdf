@@ -57,17 +57,16 @@ def test_value_list_to_rdf():
 
 
 def _list_fixture():
-    from py_aas_rdf.models import submodel_element_list, submodel_element_collection
-    from py_aas_rdf.models.submodel_element_choice import SubmodelElementChoice
+    # Importing Submodel resolves the SubmodelElementChoice forward references
+    # of the container models, exactly as in regular use.
+    import py_aas_rdf.models.submodel  # noqa: F401
+    from py_aas_rdf.models.submodel_element_collection import SubmodelElementCollection
+    from py_aas_rdf.models.submodel_element_list import SubmodelElementList
 
-    submodel_element_list.SubmodelElementChoice = SubmodelElementChoice
-    submodel_element_collection.SubmodelElementChoice = SubmodelElementChoice
-    submodel_element_list.SubmodelElementList.model_rebuild()
-    submodel_element_collection.SubmodelElementCollection.model_rebuild()
-    return submodel_element_list.SubmodelElementList, submodel_element_collection.SubmodelElementCollection
+    return SubmodelElementList, SubmodelElementCollection
 
 
-def test_submodel_element_list_mints_digit_segment_irIs():
+def test_submodel_element_list_mints_digit_segment_iris():
     from py_aas_rdf.models.property import Property
 
     SubmodelElementList, _ = _list_fixture()
