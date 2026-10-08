@@ -60,12 +60,15 @@ class AnnotatedRelationshipElement(RelationshipElementAbstract):
 
         created_graph.add((created_node, RDF.type, AASNameSpace.AAS["AnnotatedRelationshipElement"]))
         if self.annotations:
+            # Annotations are named children (idShortPath "Rel.Ann"). A positional
+            # element (a list item) carries its own address in the incoming prefix.
+            child_prefix_uri = prefix_uri if positional else f"{prefix_uri}{self.idShort}."
             for idx, annotation in enumerate(self.annotations):
                 _, created_sub_node = annotation.to_rdf(
-                    graph,
+                    created_graph,
                     created_node,
                     base_uri=base_uri,
-                    prefix_uri=prefix_uri + self.idShort + ".",
+                    prefix_uri=child_prefix_uri,
                     id_strategy=id_strategy,
                 )
                 created_graph.add((created_sub_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))

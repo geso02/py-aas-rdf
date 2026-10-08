@@ -53,7 +53,11 @@ class OperationVariable(BaseModel, RDFiable):
 
         node = rdflib.BNode()
         graph.add((node, RDF.type, AASNameSpace.AAS["OperationVariable"]))
-        _, created_node = self.value.to_rdf(graph, node)
+        # The value is a named child of the operation (AASd-134: idShorts are
+        # unique across all variable lists), so the incoming prefix addresses it.
+        _, created_node = self.value.to_rdf(
+            graph, node, prefix_uri=prefix_uri, base_uri=base_uri, id_strategy=id_strategy
+        )
         graph.add((node, AASNameSpace.AAS["OperationVariable/value"], created_node))
         return graph, node
 
@@ -89,20 +93,40 @@ class Operation(SubmodelElement):
         created_graph, created_node = super().to_rdf(graph, parent_node, prefix_uri, base_uri, id_strategy, positional)
 
         created_graph.add((created_node, RDF.type, AASNameSpace.AAS["Operation"]))
+        # A positional operation (a list item) carries its own address in the prefix.
+        child_prefix_uri = prefix_uri if positional else f"{prefix_uri}{self.idShort}."
         if self.inputVariables:
             for idx, input_variable in enumerate(self.inputVariables):
-                _, created_sub_node = input_variable.to_rdf(created_graph, created_node)
+                _, created_sub_node = input_variable.to_rdf(
+                    created_graph,
+                    created_node,
+                    prefix_uri=child_prefix_uri,
+                    base_uri=base_uri,
+                    id_strategy=id_strategy,
+                )
                 created_graph.add((created_sub_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
                 created_graph.add((created_node, AASNameSpace.AAS["Operation/inputVariables"], created_sub_node))
 
         if self.outputVariables:
             for idx, input_variable in enumerate(self.outputVariables):
-                _, created_sub_node = input_variable.to_rdf(created_graph, created_node)
+                _, created_sub_node = input_variable.to_rdf(
+                    created_graph,
+                    created_node,
+                    prefix_uri=child_prefix_uri,
+                    base_uri=base_uri,
+                    id_strategy=id_strategy,
+                )
                 created_graph.add((created_sub_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
                 created_graph.add((created_node, AASNameSpace.AAS["Operation/outputVariables"], created_sub_node))
         if self.inoutputVariables:
             for idx, input_variable in enumerate(self.inoutputVariables):
-                _, created_sub_node = input_variable.to_rdf(created_graph, created_node)
+                _, created_sub_node = input_variable.to_rdf(
+                    created_graph,
+                    created_node,
+                    prefix_uri=child_prefix_uri,
+                    base_uri=base_uri,
+                    id_strategy=id_strategy,
+                )
                 created_graph.add((created_sub_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
                 created_graph.add((created_node, AASNameSpace.AAS["Operation/inoutputVariables"], created_sub_node))
 

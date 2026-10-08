@@ -124,3 +124,124 @@ def test_named_child_of_a_positional_element_keeps_its_id_short_segment():
     }).to_rdf(prefix_uri="c3VibW9kZWw/submodel-elements/Lst.0.", base_uri="https://ex.org/")
 
     assert str(node) == "https://ex.org/c3VibW9kZWw/submodel-elements/Lst.0.Value"
+
+
+# --- unique child IRIs for Entity, AnnotatedRelationshipElement, Operation (#45)
+
+SM = "https://ex.org/c3VibW9kZWw/submodel-elements/"
+
+
+def _prop(id_short, value="v"):
+    return {"modelType": "Property", "idShort": id_short, "valueType": "xs:string", "value": value}
+
+
+def _children(graph, node, predicate):
+    return sorted(str(o) for o in graph.objects(node, rdflib.URIRef(AAS + predicate)))
+
+
+def _models():
+    import py_aas_rdf.models.submodel  # noqa: F401
+    from py_aas_rdf.models.annotated_relationship_element import AnnotatedRelationshipElement
+    from py_aas_rdf.models.entity import Entity
+    from py_aas_rdf.models.operation import Operation
+
+    return Entity, AnnotatedRelationshipElement, Operation
+
+
+def _entity(**kwargs):
+    Entity, _, _ = _models()
+    return Entity(**{
+        "modelType": "Entity",
+        "idShort": "Ent",
+        "entityType": "SelfManagedEntity",
+        "statements": [_prop("Stmt1"), _prop("Stmt2")],
+        **kwargs,
+    })
+
+
+def test_entity_root_keeps_statement_triples_and_mints_name_iris():
+    graph, node = _entity().to_rdf(prefix_uri="c3VibW9kZWw/submodel-elements/", base_uri="https://ex.org/")
+
+    assert str(node) == SM + "Ent"
+    assert _children(graph, node, "Entity/statements") == [SM + "Ent.Stmt1", SM + "Ent.Stmt2"]
+    stmt = rdflib.URIRef(SM + "Ent.Stmt2")
+    assert (stmt, rdflib.RDF.type, rdflib.URIRef(AAS + "Property")) in graph
+    assert (stmt, rdflib.URIRef(AAS + "index"), rdflib.Literal(1)) in graph
+
+
+def test_entity_as_list_item_hangs_statements_below_its_own_address():
+    graph, node = _entity().to_rdf(
+        prefix_uri="c3VibW9kZWw/submodel-elements/Lst.0.",
+        base_uri="https://ex.org/",
+        positional=True,
+    )
+
+    assert str(node) == SM + "Lst.0"
+    assert _children(graph, node, "Entity/statements") == [SM + "Lst.0.Stmt1", SM + "Lst.0.Stmt2"]
+
+
+def test_entity_with_specific_asset_ids_at_root_keeps_them():
+    graph, node = _entity(specificAssetIds=[{"name": "serial", "value": "42"}]).to_rdf(
+        prefix_uri="c3VibW9kZWw/submodel-elements/", base_uri="https://ex.org/")
+
+    assert len(_children(graph, node, "Entity/specificAssetIds")) == 1
+
+
+def test_annotated_relationship_element_root_keeps_annotation_triples():
+    _, Are, _ = _models()
+    ref = {"type": "ModelReference", "keys": [{"type": "Submodel", "value": "x"}]}
+    element = Are(**{
+        "modelType": "AnnotatedRelationshipElement",
+        "idShort": "Rel",
+        "first": ref,
+        "second": ref,
+        "annotations": [_prop("Ann1"), _prop("Ann2")],
+    })
+    graph, node = element.to_rdf(prefix_uri="c3VibW9kZWw/submodel-elements/", base_uri="https://ex.org/")
+
+    assert _children(graph, node, "AnnotatedRelationshipElement/annotations") == [
+        SM + "Rel.Ann1", SM + "Rel.Ann2"]
+    assert (rdflib.URIRef(SM + "Rel.Ann1"), rdflib.RDF.type, rdflib.URIRef(AAS + "Property")) in graph
+
+
+def test_annotated_relationship_element_as_list_item():
+    _, Are, _ = _models()
+    ref = {"type": "ModelReference", "keys": [{"type": "Submodel", "value": "x"}]}
+    graph, node = Are(**{
+        "modelType": "AnnotatedRelationshipElement",
+        "first": ref,
+        "second": ref,
+        "annotations": [_prop("Ann1")],
+    }).to_rdf(prefix_uri="c3VibW9kZWw/submodel-elements/Lst.1.", base_uri="https://ex.org/", positional=True)
+
+    assert str(node) == SM + "Lst.1"
+    assert _children(graph, node, "AnnotatedRelationshipElement/annotations") == [SM + "Lst.1.Ann1"]
+
+
+def test_operation_variable_values_are_addressed_under_the_operation():
+    _, _, Operation = _models()
+    graph, node = Operation(**{
+        "modelType": "Operation",
+        "idShort": "Op",
+        "inputVariables": [{"value": _prop("InA")}, {"value": _prop("InB")}],
+        "outputVariables": [{"value": _prop("Out")}],
+        "inoutputVariables": [{"value": _prop("Both")}],
+    }).to_rdf(prefix_uri="c3VibW9kZWw/submodel-elements/", base_uri="https://ex.org/")
+
+    values = sorted(str(o) for o in graph.objects(None, rdflib.URIRef(AAS + "OperationVariable/value")))
+    assert values == [SM + "Op.Both", SM + "Op.InA", SM + "Op.InB", SM + "Op.Out"]
+    assert not any(isinstance(s, rdflib.URIRef) and s.endswith(".None") for s in graph.subjects())
+    in_vars = list(graph.objects(node, rdflib.URIRef(AAS + "Operation/inputVariables")))
+    assert len(in_vars) == 2
+    assert sorted(int(graph.value(v, rdflib.URIRef(AAS + "index"))) for v in in_vars) == [0, 1]
+
+
+def test_operation_as_list_item_addresses_variables_below_its_position():
+    _, _, Operation = _models()
+    graph, _ = Operation(**{
+        "modelType": "Operation",
+        "inputVariables": [{"value": _prop("InA")}],
+    }).to_rdf(prefix_uri="c3VibW9kZWw/submodel-elements/Lst.0.", base_uri="https://ex.org/", positional=True)
+
+    values = [str(o) for o in graph.objects(None, rdflib.URIRef(AAS + "OperationVariable/value"))]
+    assert values == [SM + "Lst.0.InA"]

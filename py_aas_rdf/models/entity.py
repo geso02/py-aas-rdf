@@ -71,16 +71,19 @@ class Entity(SubmodelElement):
                 )
             )
         if self.statements:
+            # Statements are named children (idShortPath "Ent.Stmt"). A positional
+            # entity (a list item) carries its own address in the incoming prefix.
+            child_prefix_uri = prefix_uri if positional else f"{prefix_uri}{self.idShort}."
             for idx, statement in enumerate(self.statements):
                 _, created_sub_node = statement.to_rdf(
-                    graph,
+                    created_graph,
                     created_node,
-                    prefix_uri=prefix_uri + self.idShort + ".",
+                    prefix_uri=child_prefix_uri,
                     base_uri=base_uri,
                     id_strategy=id_strategy,
                 )
-                graph.add((created_sub_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
-                graph.add((created_node, AASNameSpace.AAS["Entity/statements"], created_sub_node))
+                created_graph.add((created_sub_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
+                created_graph.add((created_node, AASNameSpace.AAS["Entity/statements"], created_sub_node))
         if self.globalAssetId:
             created_graph.add(
                 (
@@ -92,9 +95,9 @@ class Entity(SubmodelElement):
 
         if self.specificAssetIds:
             for idx, specific_asset_id in enumerate(self.specificAssetIds):
-                _, created_sub_node = specific_asset_id.to_rdf(graph, created_node, prefix_uri=str(created_node) + ".")
-                graph.add((created_sub_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
-                graph.add((created_node, AASNameSpace.AAS["Entity/specificAssetIds"], created_sub_node))
+                _, created_sub_node = specific_asset_id.to_rdf(created_graph, created_node)
+                created_graph.add((created_sub_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
+                created_graph.add((created_node, AASNameSpace.AAS["Entity/specificAssetIds"], created_sub_node))
         return created_graph, created_node
 
     @staticmethod
