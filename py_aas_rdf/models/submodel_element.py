@@ -45,15 +45,15 @@ class SubmodelElement(Referable, HasSemantics, Qualifiable, HasDataSpecification
         prefix_uri: str = "",
         base_uri: str = "",
         id_strategy: str = "",
+        positional: bool = False,
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         if graph == None:
             graph = rdflib.Graph()
             graph.bind("aas", AASNameSpace.AAS)
-        if prefix_uri.endswith(".") and prefix_uri[:-1].rsplit(".", 1)[-1].isdigit():
-            # SubmodelElementList position: the parent already addressed this
-            # element by index ({prefix}{idShort}.{index}); a payload idShort
-            # stays a literal triple and must not enter the IRI.
-            node = rdflib.URIRef(f"{base_uri}{prefix_uri[:-1]}")
+        if positional:
+            # SubmodelElementList item: the parent minted the complete address
+            # ({prefix}{idShort}.{index}); a payload idShort stays a literal.
+            node = rdflib.URIRef(f"{base_uri}{prefix_uri.rstrip('.')}")
         elif self.idShort:
             node = rdflib.URIRef(f"{base_uri}{prefix_uri}{self.idShort}")
         else:

@@ -38,8 +38,9 @@ class RelationshipElementAbstract(SubmodelElement):
         prefix_uri: str = "",
         base_uri: str = "",
         id_strategy: str = "",
+        positional: bool = False,
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
-        created_graph, created_node = super().to_rdf(graph, parent_node, prefix_uri, base_uri, id_strategy)
+        created_graph, created_node = super().to_rdf(graph, parent_node, prefix_uri, base_uri, id_strategy, positional)
 
         if self.first is not None:
             _, first_node = self.first.to_rdf(created_graph, parent_node)

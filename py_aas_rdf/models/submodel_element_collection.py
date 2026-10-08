@@ -49,15 +49,15 @@ class SubmodelElementCollection(SubmodelElement):
         prefix_uri: str = "",
         base_uri: str = "",
         id_strategy: str = "",
+        positional: bool = False,
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
-        created_graph, created_node = super().to_rdf(graph, parent_node, prefix_uri, base_uri, id_strategy)
+        created_graph, created_node = super().to_rdf(graph, parent_node, prefix_uri, base_uri, id_strategy, positional)
 
         created_graph.add((created_node, RDF.type, AASNameSpace.AAS["SubmodelElementCollection"]))
         if self.value:
             for idx, submodel_element in enumerate(self.value):
-                # Positional collection (a list item): its own address is already
-                # the incoming prefix's digit segment, so children extend it as-is.
-                positional = prefix_uri.endswith(".") and prefix_uri[:-1].rsplit(".", 1)[-1].isdigit()
+                # A positional collection (a list item) carries its own address
+                # in the incoming prefix; named collections append their idShort.
                 if positional:
                     child_prefix_uri = f"{prefix_uri}"
                 else:

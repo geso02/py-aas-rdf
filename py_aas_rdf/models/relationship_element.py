@@ -38,8 +38,9 @@ class RelationshipElement(RelationshipElementAbstract):
         prefix_uri: str = "",
         base_uri: str = "",
         id_strategy: str = "",
+        positional: bool = False,
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
-        created_graph, created_node = super().to_rdf(graph, parent_node, prefix_uri, base_uri, id_strategy)
+        created_graph, created_node = super().to_rdf(graph, parent_node, prefix_uri, base_uri, id_strategy, positional)
         created_graph.add((created_node, RDF.type, AASNameSpace.AAS["RelationshipElement"]))
         return created_graph, created_node
 

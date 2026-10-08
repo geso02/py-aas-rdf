@@ -70,8 +70,9 @@ class SubmodelElementList(SubmodelElement):
         prefix_uri: str = "",
         base_uri: str = "",
         id_strategy: str = "",
+        positional: bool = False,
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
-        created_graph, created_node = super().to_rdf(graph, parent_node, prefix_uri, base_uri, id_strategy)
+        created_graph, created_node = super().to_rdf(graph, parent_node, prefix_uri, base_uri, id_strategy, positional)
         created_graph.add((created_node, RDF.type, AASNameSpace.AAS["SubmodelElementList"]))
         if self.orderRelevant:
             created_graph.add(
@@ -106,11 +107,10 @@ class SubmodelElementList(SubmodelElement):
                 )
             )
         if self.value:
-            # Positional list (a list item itself): its own address is already
-            # the incoming prefix's digit segment, so items append only the index.
-            positional = prefix_uri.endswith(".") and prefix_uri[:-1].rsplit(".", 1)[-1].isdigit()
             for idx, element_value in enumerate(self.value):
                 if positional:
+                    # This list is itself a list item: its address is already
+                    # the incoming prefix, so items append only the index.
                     item_prefix_uri = f"{prefix_uri}{idx}."
                 else:
                     item_prefix_uri = f"{prefix_uri}{self.idShort}.{idx}."
@@ -120,6 +120,7 @@ class SubmodelElementList(SubmodelElement):
                     prefix_uri=item_prefix_uri,
                     base_uri=base_uri,
                     id_strategy=id_strategy,
+                    positional=True,
                 )
                 created_graph.add((created_sub_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
                 created_graph.add((created_node, AASNameSpace.AAS["SubmodelElementList/value"], created_sub_node))

@@ -95,7 +95,7 @@ def test_submodel_element_list_mints_digit_segment_irIs():
 
 
 def test_submodel_element_list_accepts_positional_root_prefix():
-    """A list as the root of an element event: index carries the address, graph=None."""
+    """A list as the root of an element event: the index carries the address."""
     from py_aas_rdf.models.property import Property
 
     SubmodelElementList, _ = _list_fixture()
@@ -104,7 +104,24 @@ def test_submodel_element_list_accepts_positional_root_prefix():
         "idShort": "Lst",
         "typeValueListElement": "Property",
         "value": [{"modelType": "Property", "valueType": "xs:string", "value": "v"}],
-    }).to_rdf(prefix_uri="c3VibW9kZWw/submodel-elements/Lst.0.", base_uri="https://ex.org/")
+    }).to_rdf(
+        prefix_uri="c3VibW9kZWw/submodel-elements/Lst.0.",
+        base_uri="https://ex.org/",
+        positional=True,
+    )
 
     assert str(node) == "https://ex.org/c3VibW9kZWw/submodel-elements/Lst.0"
     assert len(list(graph)) > 0
+
+
+def test_named_child_of_a_positional_element_keeps_its_id_short_segment():
+    from py_aas_rdf.models.property import Property
+
+    graph, node = Property(**{
+        "modelType": "Property",
+        "idShort": "Value",
+        "valueType": "xs:string",
+        "value": "v",
+    }).to_rdf(prefix_uri="c3VibW9kZWw/submodel-elements/Lst.0.", base_uri="https://ex.org/")
+
+    assert str(node) == "https://ex.org/c3VibW9kZWw/submodel-elements/Lst.0.Value"
