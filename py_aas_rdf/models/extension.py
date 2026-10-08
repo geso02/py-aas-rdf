@@ -23,6 +23,7 @@ from enum import Enum
 from typing import Any, List, Optional, Union, Literal
 
 import rdflib
+from py_aas_rdf.models.ordering import objects_by_index
 from pydantic import BaseModel, Field, constr
 from rdflib import RDF, Graph
 
@@ -102,14 +103,10 @@ class Extension(HasSemantics, RDFiable):
         if value_ref:
             value = value_ref.value
 
-        refersTo_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Extension/refersTo"]),
-            None,
-        )
-        refersTo = []
-        if refersTo_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Extension/refersTo"]):
-            refersTo.append(Reference.from_rdf(graph, refersTo_ref))
-
+        refersTo = [
+            Reference.from_rdf(graph, ref)
+            for ref in objects_by_index(graph, subject, AASNameSpace.AAS["Extension/refersTo"])
+        ]
         if len(refersTo) == 0:
             refersTo = None
         return Extension.model_construct(

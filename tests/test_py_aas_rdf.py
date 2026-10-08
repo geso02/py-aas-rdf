@@ -285,3 +285,15 @@ def test_from_rdf_restores_list_order_from_aas_index_whatever_the_store_order():
         for triple in triples:
             shuffled.add(triple)
         assert Submodel.from_rdf(shuffled, node).model_dump(exclude_none=True, mode="json") == expected
+
+
+def test_extension_from_rdf_reads_every_refers_to_in_order():
+    from py_aas_rdf.models.extension import Extension
+
+    def ref(value):
+        return {"type": "ModelReference", "keys": [{"type": "Submodel", "value": value}]}
+
+    extension = Extension(name="x", refersTo=[ref("c"), ref("a"), ref("b")])
+    graph, node = extension.to_rdf()
+    restored = Extension.from_rdf(graph, node)
+    assert [r.keys[0].value for r in restored.refersTo] == ["c", "a", "b"]
