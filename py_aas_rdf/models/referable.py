@@ -35,7 +35,7 @@ from py_aas_rdf.models.model_type import ModelType
 
 class Referable(HasExtensions):
     category: Optional[constr(min_length=1, max_length=128, strip_whitespace=True)] = None
-    idShort: Optional[constr(min_length=1, max_length=128, pattern=r"^[a-zA-Z][a-zA-Z0-9_]*$")] = None
+    idShort: Optional[constr(min_length=1, max_length=128, pattern=r"^[a-zA-Z][a-zA-Z0-9_-]*[a-zA-Z0-9_]+$")] = None
     displayName: Optional[List[LangStringNameType]] = Field(None, min_length=0)
     description: Optional[List[LangStringTextType]] = Field(None, min_length=0)
     # modelType: ModelType
@@ -71,7 +71,7 @@ class Referable(HasExtensions):
         if instance.description:
             for idx, description_lan in enumerate(instance.description):
                 lang_node = rdflib.BNode()
-                graph.add((lang_node, rdflib.RDF.type, AASNameSpace.AAS["LangStringNameType"]))
+                graph.add((lang_node, rdflib.RDF.type, AASNameSpace.AAS["LangStringTextType"]))
                 graph.add((lang_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
                 graph.add(
                     (

@@ -34,7 +34,7 @@ from py_aas_rdf.models.referable import Referable
 
 
 class Identifiable(Referable):
-    id: constr(min_length=1, max_length=2000)
+    id: constr(min_length=1, max_length=2048)
     administration: Optional[AdministrativeInformation] = None
 
     @staticmethod

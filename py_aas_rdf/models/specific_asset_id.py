@@ -39,7 +39,7 @@ class SpecificAssetId(HasSemantics, RDFiable):
     )
     value: constr(
         min_length=1,
-        max_length=2000,
+        max_length=2048,
     )
     externalSubjectId: Optional[Reference] = None
 

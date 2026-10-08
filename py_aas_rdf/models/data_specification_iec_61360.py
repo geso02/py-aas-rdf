@@ -198,8 +198,8 @@ class LevelType(BaseModel, RDFiable):
 
 
 class ValueReferencePair(BaseModel, RDFiable):
-    value: constr(min_length=1, max_length=2000)
-    valueId: Optional[Reference]
+    value: constr(min_length=1, max_length=2048)
+    valueId: Optional[Reference] = None
 
     def to_rdf(
         self,

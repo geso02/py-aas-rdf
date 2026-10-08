@@ -34,7 +34,7 @@ class AdministrativeInformation(HasDataSpecification):
     version: Optional[constr(min_length=1, max_length=4, pattern=r"^(0|[1-9][0-9]*)$")] = None
     revision: Optional[constr(min_length=1, max_length=4, pattern=r"^(0|[1-9][0-9]*)$")] = None
     creator: Optional[Reference] = None
-    templateId: Optional[constr(min_length=1, max_length=2000)] = None
+    templateId: Optional[constr(min_length=1, max_length=2048)] = None
 
     @staticmethod
     def append_as_rdf(instance: "AdministrativeInformation", graph: rdflib.Graph, parent_node: rdflib.IdentifiedNode):

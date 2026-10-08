@@ -33,7 +33,7 @@ from py_aas_rdf.models.rdfiable import RDFiable
 
 class Key(BaseModel, RDFiable):
     type: KeyTypes
-    value: constr(min_length=1, max_length=2000)
+    value: constr(min_length=1, max_length=2048)
     # TODO: Add Pattern for Key
 
     def to_rdf(
@@ -85,4 +85,4 @@ class Key(BaseModel, RDFiable):
 
 class SubmodelKey(Key):
     type: KeyTypes = KeyTypes.Submodel
-    value: constr(min_length=1, max_length=2000)
+    value: constr(min_length=1, max_length=2048)

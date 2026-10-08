@@ -44,14 +44,14 @@ class AssetInformation(BaseModel, RDFiable):
     globalAssetId: Optional[
         constr(
             min_length=1,
-            max_length=2000,
+            max_length=2048,
         )
     ] = None
     specificAssetIds: Optional[List[SpecificAssetId]] = Field(None, min_length=0)
     assetType: Optional[
         constr(
             min_length=1,
-            max_length=2000,
+            max_length=2048,
         )
     ] = None
     defaultThumbnail: Optional[Resource] = None

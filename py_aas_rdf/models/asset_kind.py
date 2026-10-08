@@ -29,4 +29,5 @@ from pydantic import BaseModel, Field, constr
 class AssetKind(Enum):
     Instance = "Instance"
     NotApplicable = "NotApplicable"
+    Role = "Role"
     Type = "Type"

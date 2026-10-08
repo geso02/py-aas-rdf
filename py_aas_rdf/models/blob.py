@@ -39,7 +39,7 @@ import base64
 # TODO: check content type
 class Blob(DataElement):
     value: Optional[str] = None
-    contentType: str
+    contentType: Optional[str] = None
     modelType: Literal["Blob"] = ModelType.Blob.value
 
     def to_rdf(
@@ -60,13 +60,14 @@ class Blob(DataElement):
                     rdflib.Literal(self.value, datatype=rdflib.XSD.base64Binary),
                 )
             )
-        created_graph.add(
-            (
-                created_node,
-                AASNameSpace.AAS["Blob/contentType"],
-                rdflib.Literal(self.contentType),
+        if self.contentType is not None:
+            created_graph.add(
+                (
+                    created_node,
+                    AASNameSpace.AAS["Blob/contentType"],
+                    rdflib.Literal(self.contentType),
+                )
             )
-        )
         return created_graph, created_node
 
     @staticmethod

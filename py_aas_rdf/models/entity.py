@@ -40,11 +40,11 @@ class EntityType(Enum):
 
 class Entity(SubmodelElement):
     statements: Optional[List["SubmodelElementChoice"]] = Field(None, min_length=0)
-    entityType: EntityType
+    entityType: Optional[EntityType] = None
     globalAssetId: Optional[
         constr(
             min_length=1,
-            max_length=2000,
+            max_length=2048,
         )
     ] = None
     specificAssetIds: Optional[List[SpecificAssetId]] = Field(None, min_length=0)
@@ -61,13 +61,14 @@ class Entity(SubmodelElement):
         created_graph, created_node = super().to_rdf(graph, parent_node, prefix_uri, base_uri, id_strategy)
         created_graph.add((created_node, RDF.type, AASNameSpace.AAS["Entity"]))
 
-        created_graph.add(
-            (
-                created_node,
-                AASNameSpace.AAS["Entity/entityType"],
-                AASNameSpace.AAS[f"EntityType/{self.entityType.name}"],
+        if self.entityType is not None:
+            created_graph.add(
+                (
+                    created_node,
+                    AASNameSpace.AAS["Entity/entityType"],
+                    AASNameSpace.AAS[f"EntityType/{self.entityType.name}"],
+                )
             )
-        )
         if self.statements:
             for idx, statement in enumerate(self.statements):
                 _, created_sub_node = statement.to_rdf(

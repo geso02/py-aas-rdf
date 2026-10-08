@@ -34,7 +34,7 @@ from py_aas_rdf.models.submodel_element import SubmodelElement
 
 class File(DataElement):
     value: Optional[str] = None
-    contentType: str
+    contentType: Optional[str] = None
     modelType: Literal["File"] = ModelType.File.value
 
     def to_rdf(
@@ -55,13 +55,14 @@ class File(DataElement):
                     rdflib.Literal(self.value),
                 )
             )
-        created_graph.add(
-            (
-                created_node,
-                AASNameSpace.AAS["File/contentType"],
-                rdflib.Literal(self.contentType),
+        if self.contentType is not None:
+            created_graph.add(
+                (
+                    created_node,
+                    AASNameSpace.AAS["File/contentType"],
+                    rdflib.Literal(self.contentType),
+                )
             )
-        )
         return created_graph, created_node
 
     @staticmethod

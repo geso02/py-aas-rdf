@@ -24,6 +24,6 @@ from rdflib.namespace import DefinedNamespace, Namespace
 
 
 class AASNameSpace:
-    AAS = Namespace("https://admin-shell.io/aas/3/0/")
+    AAS = Namespace("https://admin-shell.io/aas/3/1/")
     CD_TYPE = rdflib.URIRef(AAS["ConceptDescription"])
     ID = rdflib.URIRef(AAS["Identifiable/id"])

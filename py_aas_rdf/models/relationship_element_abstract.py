@@ -18,6 +18,8 @@
 #  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 #  CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 #  OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from typing import Optional
+
 import rdflib
 
 from py_aas_rdf.models.aas_namespace import AASNameSpace
@@ -26,8 +28,8 @@ from py_aas_rdf.models.submodel_element import SubmodelElement
 
 
 class RelationshipElementAbstract(SubmodelElement):
-    first: Reference
-    second: Reference
+    first: Optional[Reference] = None
+    second: Optional[Reference] = None
 
     def to_rdf(
         self,
@@ -39,10 +41,12 @@ class RelationshipElementAbstract(SubmodelElement):
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         created_graph, created_node = super().to_rdf(graph, parent_node, prefix_uri, base_uri, id_strategy)
 
-        _, first_node = self.first.to_rdf(created_graph, parent_node)
-        _, second_node = self.second.to_rdf(created_graph, parent_node)
-        created_graph.add((created_node, AASNameSpace.AAS["RelationshipElement/first"], first_node))
-        created_graph.add((created_node, AASNameSpace.AAS["RelationshipElement/second"], second_node))
+        if self.first is not None:
+            _, first_node = self.first.to_rdf(created_graph, parent_node)
+            created_graph.add((created_node, AASNameSpace.AAS["RelationshipElement/first"], first_node))
+        if self.second is not None:
+            _, second_node = self.second.to_rdf(created_graph, parent_node)
+            created_graph.add((created_node, AASNameSpace.AAS["RelationshipElement/second"], second_node))
         return created_graph, created_node
 
     @staticmethod
