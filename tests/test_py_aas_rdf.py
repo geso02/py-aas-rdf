@@ -128,7 +128,7 @@ def test_named_child_of_a_positional_element_keeps_its_id_short_segment():
     assert str(node) == "https://ex.org/c3VibW9kZWw/submodel-elements/Lst.0.Value"
 
 
-# --- unique child IRIs for Entity, AnnotatedRelationshipElement, Operation (#45)
+# --- unique child IRIs for Entity, AnnotatedRelationshipElement, Operation
 
 SM = "https://ex.org/c3VibW9kZWw/submodel-elements/"
 
@@ -301,7 +301,7 @@ def test_extension_from_rdf_reads_every_refers_to_in_order():
     assert [r.keys[0].value for r in restored.refersTo] == ["c", "a", "b"]
 
 
-# --- one-character idShorts: spec 3.1 shape without the minimum length (#49)
+# --- one-character idShorts: spec 3.1 shape without the minimum length
 
 
 def test_one_character_id_short_is_accepted_and_mints_an_iri():

@@ -40,7 +40,7 @@ class Referable(HasExtensions):
     # The spec 3.1 shape (letter first, letters/digits/hyphen/underscore, no trailing
     # hyphen) without its minimum length: one-character idShorts occur in data stored
     # by BaSyx Java, and rejecting them here would poison whole submodel events in the
-    # bridge (#49); spec conformance stays the job of validation, not of the mapper.
+    # bridge; spec conformance stays the job of validation, not of the mapper.
     displayName: Optional[List[LangStringNameType]] = Field(None, min_length=0)
     description: Optional[List[LangStringTextType]] = Field(None, min_length=0)
     # modelType: ModelType
