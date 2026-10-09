@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 """Tests for `py_aas_rdf` package."""
+import pydantic
+import pytest
 import rdflib
 
 from py_aas_rdf.models.data_specification_iec_61360 import ValueList, ValueReferencePair
@@ -297,3 +299,32 @@ def test_extension_from_rdf_reads_every_refers_to_in_order():
     graph, node = extension.to_rdf()
     restored = Extension.from_rdf(graph, node)
     assert [r.keys[0].value for r in restored.refersTo] == ["c", "a", "b"]
+
+
+# --- one-character idShorts: spec 3.1 shape without the minimum length (#49)
+
+
+def test_one_character_id_short_is_accepted_and_mints_an_iri():
+    from py_aas_rdf.models.property import Property
+
+    graph, node = Property(**_prop("S")).to_rdf(
+        prefix_uri="c3VibW9kZWw/submodel-elements/", base_uri="https://ex.org/"
+    )
+
+    assert str(node) == "https://ex.org/c3VibW9kZWw/submodel-elements/S"
+    assert len(list(graph)) > 0
+
+
+@pytest.mark.parametrize("id_short", ["1bad", "a-", "", "a b", "9"])
+def test_non_conforming_id_shorts_are_still_rejected(id_short):
+    from py_aas_rdf.models.property import Property
+
+    with pytest.raises(pydantic.ValidationError):
+        Property(**_prop(id_short))
+
+
+@pytest.mark.parametrize("id_short", ["S", "a-b", "A_", "a-b_c", "a-_"])
+def test_conforming_id_shorts_are_accepted(id_short):
+    from py_aas_rdf.models.property import Property
+
+    Property(**_prop(id_short))

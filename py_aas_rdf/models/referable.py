@@ -36,7 +36,11 @@ from py_aas_rdf.models.model_type import ModelType
 
 class Referable(HasExtensions):
     category: Optional[constr(min_length=1, max_length=128, strip_whitespace=True)] = None
-    idShort: Optional[constr(min_length=1, max_length=128, pattern=r"^[a-zA-Z][a-zA-Z0-9_-]*[a-zA-Z0-9_]+$")] = None
+    idShort: Optional[constr(min_length=1, max_length=128, pattern=r"^([a-zA-Z]|[a-zA-Z][a-zA-Z0-9_-]*[a-zA-Z0-9_])$")] = None
+    # The spec 3.1 shape (letter first, letters/digits/hyphen/underscore, no trailing
+    # hyphen) without its minimum length: one-character idShorts occur in data stored
+    # by BaSyx Java, and rejecting them here would poison whole submodel events in the
+    # bridge (#49); spec conformance stays the job of validation, not of the mapper.
     displayName: Optional[List[LangStringNameType]] = Field(None, min_length=0)
     description: Optional[List[LangStringTextType]] = Field(None, min_length=0)
     # modelType: ModelType
